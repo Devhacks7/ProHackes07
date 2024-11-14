@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big and Small Prediction</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+      color: #ffffff;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .login-container, .container {
+      text-align: center;
+      padding: 30px;
+      background-color: rgba(30, 30, 30, 0.85);
+      border-radius: 10px;
+      box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.4);
+      max-width: 400px;
+    }
+
+    .input-field {
+      padding: 12px;
+      margin: 10px 0;
+      width: 100%;
+      max-width: 300px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #444;
+      color: #ffffff;
+      background-color: #333333;
+    }
+
+    .button {
+      padding: 12px 20px;
+      font-size: 18px;
+      color: #ffffff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .get-pass-button, .adjust-period-button {
+      padding: 12px 20px;
+      font-size: 18px;
+      color: #ffffff;
+      background-color: #FF5733;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .back-to-login-button {
+      padding: 12px 20px;
+      font-size: 18px;
+      color: #ffffff;
+      background-color: #28a745;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .notice {
+      background-color: rgba(255, 204, 0, 0.2);
+      border: 1px solid #ffcc00;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .period-box {
+      display: inline-block;
+      padding: 15px 25px;
+      border: 3px solid #ff4d4d;
+      border-radius: 10px;
+      font-size: 24px;
+      color: #ff4d4d;
+      font-weight: bold;
+      margin-top: 20px;
+      background-color: rgba(255, 77, 77, 0.2);
+    }
+
+    .prediction {
+      margin-top: 30px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .spacing {
+      margin-top: 15px; /* Additional space between buttons */
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div class="login-container" id="loginContainer">
+    <h2>Login</h2>
+    <input type="text" id="userId" class="input-field" placeholder="User ID" required>
+    <input type="password" id="password" class="input-field" placeholder="Password" required>
+    <button class="button" onclick="login()">Login</button>
+    <button class="get-pass-button" id="getPassButton" onclick="showGetPassInfo()">Get Pass</button>
+  </div>
+
+  <!-- Prediction Page -->
+  <div class="container" id="predictionContainer" style="display: none;">
+    <div class="period-box" id="periodNumber">Period: 0003</div>
+    <div class="prediction" id="prediction">--</div>
+    <button class="adjust-period-button" onclick="adjustPeriod()">Adjust Period</button>
+  </div>
+
+  <script>
+    function getExpectedPassword() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      return `${year}${month}${day}TV`;
+    }
+
+    function login() {
+      const userId = document.getElementById("userId").value;
+      const password = document.getElementById("password").value;
+      const correctPassword = getExpectedPassword();
+
+      if (password === correctPassword) {
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("predictionContainer").style.display = "block";
+        initializePeriod();
+        startAutoPrediction();
+      } else {
+        alert("Incorrect Password. Please try again.");
+      }
+    }
+
+    function showGetPassInfo() {
+      const loginContainer = document.getElementById("loginContainer");
+      loginContainer.innerHTML = `
+        <div class="container">
+          <h2>NOTICE</h2>
+          <div class="notice">
+            <p>PERFORMANCE DEPENDS UPON DEPOSIT :</p>
+            <ul>
+              <li>1000 == 40% WORK</li>
+              <li>2000 == 60% WORK</li>
+              <li>5000 == 80% WORK</li>
+              <li>10000 == 90% WORK</li>
+              <li>15000 == 99% WORK</li>
+            </ul>
+          </div>
+          <a href="https://tcvvip2.com/#/register?invitationCode=174738130866" class="button">Register & Deposit</a>
+          <div class="spacing"></div> <!-- Spacing between buttons -->
+          <a href="https://t.me/kingdeva123" class="button contact-button">Message for Pass</a>
+          <button class="back-to-login-button" onclick="backToLogin()">Back to Login</button>
+          <h3>HIGH DEPOSIT HIGH PERFORMANCE</h3>
+        </div>`;
+    }
+
+    function backToLogin() {
+      location.reload(); // Reloads the page to bring back the login screen
+    }
+
+    let periodNumber;
+    let timer;
+
+    function startAutoPrediction() {
+      generatePrediction();
+      const nextMinute = 60000 - (new Date().getSeconds() * 1000);
+      
+      timer = setTimeout(() => {
+        updatePeriodNumber();
+        generatePrediction();
+        timer = setInterval(() => {
+          updatePeriodNumber();
+          generatePrediction();
+        }, 60000);
+      }, nextMinute);
+    }
+
+    function initializePeriod() {
+      const currentTime = new Date();
+      const startOfPeriod = new Date();
+      startOfPeriod.setHours(5, 30, 0, 0);
+
+      const minutesSinceStart = Math.floor((currentTime - startOfPeriod) / (1000 * 60));
+      periodNumber = minutesSinceStart >= 0 ? minutesSinceStart + 1 : 1;
+      document.getElementById("periodNumber").innerText = `Period: ${String(periodNumber).padStart(4, '0')}`;
+    }
+
+    function updatePeriodNumber() {
+      periodNumber += 1;
+      document.getElementById("periodNumber").innerText = `Period: ${String(periodNumber).padStart(4, '0')}`;
+
+      if (periodNumber > 1440) {
+        periodNumber = 1;
+      }
+    }
+
+    function adjustPeriod() {
+      const userPeriod = prompt("Enter the period number you want to set:");
+      if (userPeriod && !isNaN(userPeriod)) {
+        periodNumber = parseInt(userPeriod);
+        document.getElementById("periodNumber").innerText = `Period: ${String(periodNumber).padStart(4, '0')}`;
+      }
+    }
+
+    function generatePrediction() {
+      const patterns = ["dragon", "repeat", "increase", "decrease"];
+      const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
+      const bigPairs = ["1+3", "2+4"];
+      const smallPairs = ["6+8", "7+9"];
+      let result;
+
+      const isBig = Math.random() > 0.5;
+
+      switch (selectedPattern) {
+        case "dragon":
+          result = isBig ? `[${bigPairs[Math.floor(Math.random() * bigPairs.length)]}] Big` 
+                         : `[${smallPairs[Math.floor(Math.random() * smallPairs.length)]}] Small`;
+          break;
+
+        case "repeat":
+          result = isBig ? `[${bigPairs[0]}] Big` : `[${smallPairs[0]}] Small`;
+          break;
+
+        case "increase":
+          result = Math.random() < 0.3 ? `[${smallPairs[Math.floor(Math.random() * smallPairs.length)]}] Small`
+                                       : `[
+                                       
+                                       ${bigPairs[Math.floor(Math.random() * bigPairs.length)]}] Big`;
+          break;
+
+        case "decrease":
+          result = Math.random() < 0.3 ? `[${bigPairs[Math.floor(Math.random() * bigPairs.length)]}] Big`
+                                       : `[${smallPairs[Math.floor(Math.random() * smallPairs.length)]}] Small`;
+          break;
+      }
+
+      document.getElementById("prediction").innerText = result;
+    }
+  </script>
+</body>
+  </html>
