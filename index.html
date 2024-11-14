@@ -28,7 +28,7 @@
     .input-field {
       padding: 12px;
       margin: 10px 0;
-      width: 100%;
+      width: 90%;
       max-width: 300px;
       font-size: 16px;
       border-radius: 5px;
@@ -107,6 +107,49 @@
     .spacing {
       margin-top: 15px; /* Additional space between buttons */
     }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #333;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      color: #fff;
+      width: 300px;
+    }
+
+    .modal-button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .modal-input {
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background-color: #333;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -123,7 +166,26 @@
   <div class="container" id="predictionContainer" style="display: none;">
     <div class="period-box" id="periodNumber">Period: 0003</div>
     <div class="prediction" id="prediction">--</div>
-    <button class="adjust-period-button" onclick="adjustPeriod()">Adjust Period</button>
+    <button class="adjust-period-button" onclick="openAdjustPeriodModal()">Adjust Period</button>
+  </div>
+
+  <!-- Modal for Incorrect Password -->
+  <div class="modal" id="errorModal">
+    <div class="modal-content">
+      <h2>Incorrect Password</h2>
+      <p>Please try again.</p>
+      <button class="modal-button" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- Modal for Adjusting Period -->
+  <div class="modal" id="adjustPeriodModal">
+    <div class="modal-content">
+      <h2>Adjust Period</h2>
+      <input type="number" id="newPeriod" class="modal-input" placeholder="Enter new period number" required>
+      <button class="modal-button" onclick="updatePeriod()">Update Period</button>
+      <button class="modal-button" onclick="closeAdjustPeriodModal()">Cancel</button>
+    </div>
   </div>
 
   <script>
@@ -146,7 +208,7 @@
         initializePeriod();
         startAutoPrediction();
       } else {
-        alert("Incorrect Password. Please try again.");
+        showErrorModal();  // Show custom modal on incorrect password
       }
     }
 
@@ -167,6 +229,7 @@
           </div>
           <a href="https://tcvvip2.com/#/register?invitationCode=174738130866" class="button">Register & Deposit</a>
           <div class="spacing"></div> <!-- Spacing between buttons -->
+          <br>
           <a href="https://t.me/kingdeva123" class="button contact-button">Message for Pass</a>
           <button class="back-to-login-button" onclick="backToLogin()">Back to Login</button>
           <h3>HIGH DEPOSIT HIGH PERFORMANCE</h3>
@@ -213,14 +276,6 @@
       }
     }
 
-    function adjustPeriod() {
-      const userPeriod = prompt("Enter the period number you want to set:");
-      if (userPeriod && !isNaN(userPeriod)) {
-        periodNumber = parseInt(userPeriod);
-        document.getElementById("periodNumber").innerText = `Period: ${String(periodNumber).padStart(4, '0')}`;
-      }
-    }
-
     function generatePrediction() {
       const patterns = ["dragon", "repeat", "increase", "decrease"];
       const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
@@ -242,9 +297,7 @@
 
         case "increase":
           result = Math.random() < 0.3 ? `[${smallPairs[Math.floor(Math.random() * smallPairs.length)]}] Small`
-                                       : `[
-                                       
-                                       ${bigPairs[Math.floor(Math.random() * bigPairs.length)]}] Big`;
+                                       : `[${bigPairs[Math.floor(Math.random() * bigPairs.length)]}] Big`;
           break;
 
         case "decrease":
@@ -254,6 +307,42 @@
       }
 
       document.getElementById("prediction").innerText = result;
+    }
+
+    // Show the modal with error message for incorrect password
+    function showErrorModal() {
+      const modal = document.getElementById("errorModal");
+      modal.style.display = "flex";
+    }
+
+    // Close the modal for incorrect password
+    function closeModal() {
+      const modal = document.getElementById("errorModal");
+      modal.style.display = "none";
+    }
+
+    // Open the modal for adjusting period
+    function openAdjustPeriodModal() {
+      const modal = document.getElementById("adjustPeriodModal");
+      modal.style.display = "flex";
+    }
+
+    // Close the modal for adjusting period
+    function closeAdjustPeriodModal() {
+      const modal = document.getElementById("adjustPeriodModal");
+      modal.style.display = "none";
+    }
+
+    // Update period number from the modal
+    function updatePeriod() {
+      const newPeriod = document.getElementById("newPeriod").value;
+      if (newPeriod && !isNaN(newPeriod)) {
+        periodNumber = parseInt(newPeriod);
+        document.getElementById("periodNumber").innerText = `Period: ${String(periodNumber).padStart(4, '0')}`;
+        closeAdjustPeriodModal(); // Close the modal after updating
+      } else {
+        alert("Please enter a valid period number."); // Optionally add a simple alert if invalid input is entered
+      }
     }
   </script>
 </body>
